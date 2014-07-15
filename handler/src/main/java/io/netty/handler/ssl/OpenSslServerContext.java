@@ -63,8 +63,10 @@ public final class OpenSslServerContext extends SslContext {
 
     private final List<String> ciphers = new ArrayList<String>();
     private final List<String> unmodifiableCiphers = Collections.unmodifiableList(ciphers);
-    private final long sessionCacheSize;
-    private final long sessionTimeout;
+    private  long sessionCacheSize;
+    //private final long sessionCacheSize;
+    private  long sessionTimeout;
+    //private final long sessionTimeout;
     private final List<String> nextProtocols;
 
     /** The OpenSSL SSL_CTX object */
@@ -227,29 +229,29 @@ public final class OpenSslServerContext extends SslContext {
                     }
                     nextProtocolBuf.setLength(nextProtocolBuf.length() - 1);
 
-                    SSLContext.setNextProtos(ctx, nextProtocolBuf.toString());
+                    //SSLContext.setNextProtos(ctx, nextProtocolBuf.toString());
                 }
 
                 /* Set session cache size, if specified */
                 if (sessionCacheSize > 0) {
-                    this.sessionCacheSize = sessionCacheSize;
-                    SSLContext.setSessionCacheSize(ctx, sessionCacheSize);
+                    //this.sessionCacheSize = sessionCacheSize;
+                    //SSLContext.setSessionCacheSize(ctx, sessionCacheSize);
                 } else {
                     // Get the default session cache size using SSLContext.setSessionCacheSize()
-                    this.sessionCacheSize = sessionCacheSize = SSLContext.setSessionCacheSize(ctx, 20480);
+                    //this.sessionCacheSize = sessionCacheSize = SSLContext.setSessionCacheSize(ctx, 20480);
                     // Revert the session cache size to the default value.
-                    SSLContext.setSessionCacheSize(ctx, sessionCacheSize);
+                    //SSLContext.setSessionCacheSize(ctx, sessionCacheSize);
                 }
 
                 /* Set session timeout, if specified */
                 if (sessionTimeout > 0) {
                     this.sessionTimeout = sessionTimeout;
-                    SSLContext.setSessionCacheTimeout(ctx, sessionTimeout);
+                    //SSLContext.setSessionCacheTimeout(ctx, sessionTimeout);
                 } else {
                     // Get the default session timeout using SSLContext.setSessionCacheTimeout()
-                    this.sessionTimeout = sessionTimeout = SSLContext.setSessionCacheTimeout(ctx, 300);
+                    //this.sessionTimeout = sessionTimeout = SSLContext.setSessionCacheTimeout(ctx, 300);
                     // Revert the session timeout to the default value.
-                    SSLContext.setSessionCacheTimeout(ctx, sessionTimeout);
+                    //SSLContext.setSessionCacheTimeout(ctx, sessionTimeout);
                 }
             }
             success = true;
@@ -325,7 +327,7 @@ public final class OpenSslServerContext extends SslContext {
         if (keys != null) {
             throw new NullPointerException("keys");
         }
-        SSLContext.setSessionTicketKeys(ctx, keys);
+        //SSLContext.setSessionTicketKeys(ctx, keys);
     }
 
     @Override

@@ -102,8 +102,8 @@ public final class ChannelHandlerInvokerUtil {
         }
     }
 
-    public static void invokeBindNow(
-            final ChannelHandlerContext ctx, final SocketAddress localAddress, final ChannelPromise promise) {
+    public static void invokeBindNow(final ChannelHandlerContext ctx,
+                                     final SocketAddress localAddress, final ChannelPromise promise) {
         try {
             ctx.handler().bind(ctx, localAddress, promise);
         } catch (Throwable t) {

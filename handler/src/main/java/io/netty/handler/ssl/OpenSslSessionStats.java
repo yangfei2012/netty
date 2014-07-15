@@ -16,8 +16,6 @@
 
 package io.netty.handler.ssl;
 
-import org.apache.tomcat.jni.SSLContext;
-
 /**
  * Stats exposed by an OpenSSL session context.
  *
@@ -35,49 +33,50 @@ public final class OpenSslSessionStats {
      * Returns the current number of sessions in the internal session cache.
      */
     public long number() {
-        return SSLContext.sessionNumber(context);
+        //return SSLContext.sessionNumber(context);
+        return 0;
     }
 
     /**
      * Returns the number of started SSL/TLS handshakes in client mode.
      */
     public long connect() {
-        return SSLContext.sessionConnect(context);
+        return 0;
     }
 
     /**
      * Returns the number of successfully established SSL/TLS sessions in client mode.
      */
     public long connectGood() {
-        return SSLContext.sessionConnectGood(context);
+        return 0;
     }
 
     /**
      * Returns the number of start renegotiations in client mode.
      */
     public long connectRenegotiate() {
-        return SSLContext.sessionConnectRenegotiate(context);
+        return 0;
     }
 
     /**
      * Returns the number of started SSL/TLS handshakes in server mode.
      */
     public long accept() {
-        return SSLContext.sessionAccept(context);
+        return 0;
     }
 
     /**
      * Returns the number of successfully established SSL/TLS sessions in server mode.
      */
     public long acceptGood() {
-        return SSLContext.sessionAcceptGood(context);
+        return 0;
     }
 
     /**
      * Returns the number of start renegotiations in server mode.
      */
     public long acceptRenegotiate() {
-        return SSLContext.sessionAcceptRenegotiate(context);
+        return 0;
     }
 
     /**
@@ -86,14 +85,14 @@ public final class OpenSslSessionStats {
      * external cache is counted as a hit.
      */
     public long hits() {
-        return SSLContext.sessionHits(context);
+        return 0;
     }
 
     /**
      * Returns the number of successfully retrieved sessions from the external session cache in server mode.
      */
     public long cbHits() {
-        return SSLContext.sessionCbHits(context);
+        return 0;
     }
 
     /**
@@ -101,7 +100,7 @@ public final class OpenSslSessionStats {
      * in server mode.
      */
     public long misses() {
-        return SSLContext.sessionMisses(context);
+        return 0;
     }
 
     /**
@@ -110,13 +109,13 @@ public final class OpenSslSessionStats {
      * count.
      */
     public long timeouts() {
-        return SSLContext.sessionTimeouts(context);
+        return 0;
     }
 
     /**
      * Returns the number of sessions that were removed because the maximum session cache size was exceeded.
      */
     public long cacheFull() {
-        return SSLContext.sessionCacheFull(context);
+        return 0;
     }
 }

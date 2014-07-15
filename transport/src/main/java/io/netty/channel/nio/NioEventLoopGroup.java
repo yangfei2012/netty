@@ -67,8 +67,8 @@ public class NioEventLoopGroup extends MultithreadEventLoopGroup {
         super(nThreads, threadFactory, selectorProvider);
     }
 
-    public NioEventLoopGroup(
-            int nThreads, Executor executor, final SelectorProvider selectorProvider) {
+    public NioEventLoopGroup(int nThreads, Executor executor,
+                             final SelectorProvider selectorProvider) {
         super(nThreads, executor, selectorProvider);
     }
 

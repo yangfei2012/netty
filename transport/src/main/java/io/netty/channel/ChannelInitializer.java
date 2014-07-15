@@ -52,8 +52,9 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelHandl
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ChannelInitializer.class);
 
     /**
-     * This method will be called once the {@link Channel} was registered. After the method returns this instance
-     * will be removed from the {@link ChannelPipeline} of the {@link Channel}.
+     * This method will be called once the {@link Channel} was registered.
+     * After the method returns this instance will be removed
+     * from the {@link ChannelPipeline} of the {@link Channel}.
      *
      * @param ch            the {@link Channel} which was registered.
      * @throws Exception    is thrown if an error occurs. In that case the {@link Channel} will be closed.

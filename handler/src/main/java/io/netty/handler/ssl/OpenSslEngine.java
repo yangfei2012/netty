@@ -114,8 +114,8 @@ public final class OpenSslEngine extends SSLEngine {
         }
 
         this.alloc = alloc;
-        ssl = SSL.newSSL(sslCtx, true);
-        networkBIO = SSL.makeNetworkBIO(ssl);
+        //ssl = SSL.newSSL(sslCtx, true);
+        //networkBIO = SSL.makeNetworkBIO(ssl);
         this.fallbackApplicationProtocol = fallbackApplicationProtocol;
     }
 
@@ -124,8 +124,8 @@ public final class OpenSslEngine extends SSLEngine {
      */
     public synchronized void shutdown() {
         if (DESTROYED_UPDATER.compareAndSet(this, 0, 1)) {
-            SSL.freeSSL(ssl);
-            SSL.freeBIO(networkBIO);
+            //SSL.freeSSL(ssl);
+            //SSL.freeBIO(networkBIO);
             ssl = networkBIO = 0;
 
             // internal errors can cause shutdown without marking the engine closed
@@ -146,7 +146,8 @@ public final class OpenSslEngine extends SSLEngine {
 
         if (src.isDirect()) {
             final long addr = Buffer.address(src) + pos;
-            sslWrote = SSL.writeToSSL(ssl, addr, len);
+            //sslWrote = SSL.writeToSSL(ssl, addr, len);
+            sslWrote = 0;
             if (sslWrote > 0) {
                 src.position(pos + sslWrote);
                 return sslWrote;
@@ -166,7 +167,8 @@ public final class OpenSslEngine extends SSLEngine {
                 buf.setBytes(0, src);
                 src.limit(limit);
 
-                sslWrote = SSL.writeToSSL(ssl, addr, len);
+                //sslWrote = SSL.writeToSSL(ssl, addr, len);
+                sslWrote = 0;
                 if (sslWrote > 0) {
                     src.position(pos + sslWrote);
                     return sslWrote;
@@ -189,10 +191,11 @@ public final class OpenSslEngine extends SSLEngine {
         final int len = src.remaining();
         if (src.isDirect()) {
             final long addr = Buffer.address(src) + pos;
-            final int netWrote = SSL.writeToBIO(networkBIO, addr, len);
+            //final int netWrote = SSL.writeToBIO(networkBIO, addr, len);
+            final int netWrote = 0;
             if (netWrote >= 0) {
-                src.position(pos + netWrote);
-                lastPrimingReadResult = SSL.readFromSSL(ssl, addr, 0); // priming read
+                //src.position(pos + netWrote);
+                //lastPrimingReadResult = SSL.readFromSSL(ssl, addr, 0); // priming read
                 return netWrote;
             }
         } else {
@@ -207,10 +210,11 @@ public final class OpenSslEngine extends SSLEngine {
 
                 buf.setBytes(0, src);
 
-                final int netWrote = SSL.writeToBIO(networkBIO, addr, len);
+                //final int netWrote = SSL.writeToBIO(networkBIO, addr, len);
+                final int netWrote = 0;
                 if (netWrote >= 0) {
                     src.position(pos + netWrote);
-                    lastPrimingReadResult = SSL.readFromSSL(ssl, addr, 0); // priming read
+                    //lastPrimingReadResult = SSL.readFromSSL(ssl, addr, 0); // priming read
                     return netWrote;
                 } else {
                     src.position(pos);
@@ -231,7 +235,8 @@ public final class OpenSslEngine extends SSLEngine {
             final int pos = dst.position();
             final long addr = Buffer.address(dst) + pos;
             final int len = dst.limit() - pos;
-            final int sslRead = SSL.readFromSSL(ssl, addr, len);
+            //final int sslRead = SSL.readFromSSL(ssl, addr, len);
+            final int sslRead = 0;
             if (sslRead > 0) {
                 dst.position(pos + sslRead);
                 return sslRead;
@@ -249,7 +254,8 @@ public final class OpenSslEngine extends SSLEngine {
                     addr = Buffer.address(buf.nioBuffer());
                 }
 
-                final int sslRead = SSL.readFromSSL(ssl, addr, len);
+                //final int sslRead = SSL.readFromSSL(ssl, addr, len);
+                final int sslRead = 0;
                 if (sslRead > 0) {
                     dst.limit(pos + sslRead);
                     buf.getBytes(0, dst);
@@ -271,7 +277,8 @@ public final class OpenSslEngine extends SSLEngine {
         if (dst.isDirect() && dst.remaining() >= pending) {
             final int pos = dst.position();
             final long addr = Buffer.address(dst) + pos;
-            final int bioRead = SSL.readFromBIO(networkBIO, addr, pending);
+            //final int bioRead = SSL.readFromBIO(networkBIO, addr, pending);
+            final int bioRead = 0;
             if (bioRead > 0) {
                 dst.position(pos + bioRead);
                 return bioRead;
@@ -286,7 +293,8 @@ public final class OpenSslEngine extends SSLEngine {
                     addr = Buffer.address(buf.nioBuffer());
                 }
 
-                final int bioRead = SSL.readFromBIO(networkBIO, addr, pending);
+                //final int bioRead = SSL.readFromBIO(networkBIO, addr, pending);
+                final int bioRead = 0;
                 if (bioRead > 0) {
                     int oldLimit = dst.limit();
                     dst.limit(dst.position() + bioRead);
@@ -345,7 +353,8 @@ public final class OpenSslEngine extends SSLEngine {
         int pendingNet;
 
         // Check for pending data in the network BIO
-        pendingNet = SSL.pendingWrittenBytesInBIO(networkBIO);
+        //pendingNet = SSL.pendingWrittenBytesInBIO(networkBIO);
+        pendingNet = 0;
         if (pendingNet > 0) {
             // Do we have enough room in dst to write encrypted data?
             int capacity = dst.remaining();
@@ -384,7 +393,8 @@ public final class OpenSslEngine extends SSLEngine {
                 }
 
                 // Check to see if the engine wrote data into the network BIO
-                pendingNet = SSL.pendingWrittenBytesInBIO(networkBIO);
+                //pendingNet = SSL.pendingWrittenBytesInBIO(networkBIO);
+                pendingNet = 0;
                 if (pendingNet > 0) {
                     // Do we have enough room in dst to write encrypted data?
                     int capacity = dst.remaining();
@@ -487,7 +497,8 @@ public final class OpenSslEngine extends SSLEngine {
         }
 
         // There won't be any application data until we're done handshaking
-        int pendingApp = SSL.isInInit(ssl) == 0 ? SSL.pendingReadableBytesInSSL(ssl) : 0;
+        //int pendingApp = SSL.isInInit(ssl) == 0 ? SSL.pendingReadableBytesInSSL(ssl) : 0;
+        int pendingApp = 0;
 
         // Do we have enough room in dsts to write decrypted data?
         if (capacity < pendingApp) {
@@ -528,7 +539,7 @@ public final class OpenSslEngine extends SSLEngine {
         }
 
         // Check to see if we received a close_notify message from the peer
-        if (!receivedShutdown && (SSL.getShutdown(ssl) & SSL.SSL_RECEIVED_SHUTDOWN) == SSL.SSL_RECEIVED_SHUTDOWN) {
+        if (!receivedShutdown) {
             receivedShutdown = true;
             closeOutbound();
             closeInbound();
@@ -581,10 +592,10 @@ public final class OpenSslEngine extends SSLEngine {
         engineClosed = true;
 
         if (accepted != 0 && destroyed == 0) {
-            int mode = SSL.getShutdown(ssl);
-            if ((mode & SSL.SSL_SENT_SHUTDOWN) != SSL.SSL_SENT_SHUTDOWN) {
-                SSL.shutdownSSL(ssl);
-            }
+            //int mode = SSL.getShutdown(ssl);
+            //if ((mode & SSL.SSL_SENT_SHUTDOWN) != SSL.SSL_SENT_SHUTDOWN) {
+            //    SSL.shutdownSSL(ssl);
+            //}
         } else {
             // engine closing before initial handshake
             shutdown();
@@ -752,7 +763,7 @@ public final class OpenSslEngine extends SSLEngine {
 
         switch (accepted) {
             case 0:
-                SSL.doHandshake(ssl);
+                //SSL.doHandshake(ssl);
                 accepted = 2;
                 break;
             case 1:
@@ -777,7 +788,7 @@ public final class OpenSslEngine extends SSLEngine {
         }
 
         if (accepted == 0) {
-            SSL.doHandshake(ssl);
+            //SSL.doHandshake(ssl);
             accepted = 1;
         }
     }
@@ -795,16 +806,17 @@ public final class OpenSslEngine extends SSLEngine {
         // Check if we are in the initial handshake phase
         if (!handshakeFinished) {
             // There is pending data in the network BIO -- call wrap
-            if (SSL.pendingWrittenBytesInBIO(networkBIO) != 0) {
-                return NEED_WRAP;
-            }
+            //if (SSL.pendingWrittenBytesInBIO(networkBIO) != 0) {
+            //    return NEED_WRAP;
+            //}
 
             // No pending data to be sent to the peer
             // Check to see if we have finished handshaking
-            if (SSL.isInInit(ssl) == 0) {
+            //if (SSL.isInInit(ssl) == 0) {
+            if (0 == 0) {
                 handshakeFinished = true;
-                cipher = SSL.getCipherForSSL(ssl);
-                String applicationProtocol = SSL.getNextProtoNegotiated(ssl);
+                //cipher = SSL.getCipherForSSL(ssl);
+                //String applicationProtocol = SSL.getNextProtoNegotiated(ssl);
                 if (applicationProtocol == null) {
                     applicationProtocol = fallbackApplicationProtocol;
                 }
@@ -824,7 +836,8 @@ public final class OpenSslEngine extends SSLEngine {
         // Check if we are in the shutdown phase
         if (engineClosed) {
             // Waiting to send the close_notify message
-            if (SSL.pendingWrittenBytesInBIO(networkBIO) != 0) {
+            //if (SSL.pendingWrittenBytesInBIO(networkBIO) != 0) {
+            if (0 != 0) {
                 return NEED_WRAP;
             }
 

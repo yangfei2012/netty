@@ -200,8 +200,8 @@ public class DefaultChannelHandlerInvoker implements ChannelHandlerInvoker {
     }
 
     @Override
-    public void invokeBind(
-            final ChannelHandlerContext ctx, final SocketAddress localAddress, final ChannelPromise promise) {
+    public void invokeBind(final ChannelHandlerContext ctx,
+                           final SocketAddress localAddress, final ChannelPromise promise) {
         if (localAddress == null) {
             throw new NullPointerException("localAddress");
         }

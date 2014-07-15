@@ -48,9 +48,9 @@ final class ScheduledFutureTask<V> extends PromiseTask<V> implements ScheduledFu
         this(executor, delayedTaskQueue, toCallable(runnable, result), nanoTime);
     }
 
-    ScheduledFutureTask(
-            EventExecutor executor, Queue<ScheduledFutureTask<?>> delayedTaskQueue,
-            Callable<V> callable, long nanoTime, long period) {
+    ScheduledFutureTask(EventExecutor executor,
+                        Queue<ScheduledFutureTask<?>> delayedTaskQueue,
+                        Callable<V> callable, long nanoTime, long period) {
 
         super(executor, callable);
         if (period == 0) {

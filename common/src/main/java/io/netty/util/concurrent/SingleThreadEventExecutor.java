@@ -810,9 +810,13 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
     private void startThread() {
         if (STATE_UPDATER.get(this) == ST_NOT_STARTED) {
             if (STATE_UPDATER.compareAndSet(this, ST_NOT_STARTED, ST_STARTED)) {
-                delayedTaskQueue.add(new ScheduledFutureTask<Void>(
-                        this, delayedTaskQueue, Executors.<Void>callable(new PurgeTask(), null),
-                        ScheduledFutureTask.deadlineNanos(SCHEDULE_PURGE_INTERVAL), -SCHEDULE_PURGE_INTERVAL));
+                delayedTaskQueue.add(
+                        new ScheduledFutureTask<Void>(
+                                this, delayedTaskQueue,
+                                Executors.<Void>callable(new PurgeTask(), null),
+                                ScheduledFutureTask.deadlineNanos(SCHEDULE_PURGE_INTERVAL),
+                                -SCHEDULE_PURGE_INTERVAL)
+                );
                 doStartThread();
             }
         }
