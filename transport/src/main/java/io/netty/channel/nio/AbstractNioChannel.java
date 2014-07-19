@@ -370,6 +370,8 @@ public abstract class AbstractNioChannel extends AbstractChannel {
             return;
         }
 
+        // 此属性 readInterestOp值为16，interestOps & readInterestOp值为0(?)
+        // 所以interestOps | readInterestOp 等同于 SelectionKey.OP_ACCEPT
         final int interestOps = selectionKey.interestOps();
         if ((interestOps & readInterestOp) == 0) {
             selectionKey.interestOps(interestOps | readInterestOp);

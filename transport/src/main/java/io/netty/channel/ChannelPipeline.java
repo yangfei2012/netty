@@ -415,6 +415,10 @@ public interface ChannelPipeline extends Iterable<Entry<String, ChannelHandler>>
     /**
      * Inserts a {@link ChannelHandler}s at the last position of this pipeline.
      *
+     * [注意：？未查明
+     *  p.addLast方法并不是把handler放到tail上，而是放到tail的前一个节点上。
+     *  所以，这个addLast方法命名很是误解。]
+     *
      * @param handlers  the handlers to insert last
      *
      */

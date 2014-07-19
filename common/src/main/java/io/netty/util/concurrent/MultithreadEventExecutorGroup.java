@@ -50,6 +50,12 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
     /**
      * Create a new instance.
      *
+     * 主要完成以下几件事情
+     * 1. 设置默认DefaultThreadFactory线程工厂。(主要做了2件事，设置线程池名称和线程名称)
+     * 2. 初始化children数组，然后通过调用NioEventLoopGroup.newChild方法完成child属性设置。
+     *    [循环创建出来 N个NioEventLoop对象，
+     *    每个NioEventLoop都设置了相同的parent，executor和不同的selector实例。]
+     *
      * @param nThreads          the number of threads that will be used by this instance.
      * @param executor          the Executor to use, or {@code null} if the default should be used.
      * @param args              arguments which will passed to each {@link #newChild(Executor, Object...)} call
@@ -70,6 +76,8 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
             chooser = new GenericEventExecutorChooser();
         }
 
+        // 循环创建出来 N个NioEventLoop对象，每个NioEventLoop都设置了
+        // 相同的parent，executor和不同的selector实例
         for (int i = 0; i < nThreads; i ++) {
             boolean success = false;
             try {

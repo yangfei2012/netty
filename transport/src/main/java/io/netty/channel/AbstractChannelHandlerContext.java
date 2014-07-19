@@ -504,6 +504,21 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
         return new FailedChannelFuture(channel(), executor(), cause);
     }
 
+    /**
+     * 截取：
+     *  里面ServerBootstrap$1是继承自ChannelInitializer，
+     *  而ChannelInitializer.channelRegistered是没有@Skip注解的。
+     *  @　Skip注解又有何用？
+     *    这个要结合　DefaultChannelHandlerContext.skipFlags0(
+     *              Class<? extends ChannelHandler> handlerType)。
+     *    这个skipFlags0方法返回一个整数，如果该方法上标记了@Skip注解，
+     *    那么表示该方法在Handler被执行时，需要被忽略。
+     *
+     *  所以，此时do {ctx = ctx.next;} while ((ctx.skipFlags & mask) != 0);
+     *  片段的执行结果返回的是ServerBootstrap$1这个Handler。
+     *
+     * 这里在额外说一句，这个ChannelHandlerAdapter里面的方法几乎都被加了@Skip标签。
+     */
     private AbstractChannelHandlerContext findContextInbound() {
         AbstractChannelHandlerContext ctx = this;
         do {

@@ -48,14 +48,19 @@ public final class EchoServer {
         }
 
         // Configure the server.
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new NioEventLoopGroup(1); //bossGroup线程池用来接受客户端的连接请求
+        EventLoopGroup workerGroup = new NioEventLoopGroup(); //workerGroup线程池用来处理boss线程池里面的连接的数据
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
              .channel(NioServerSocketChannel.class)
+             // AbstractBootstrap.option()用来设置ServerSocket的参数，
+             // AbstractBootstrap.childOption()用来设置Socket的参数。
              .option(ChannelOption.SO_BACKLOG, 100)
              .handler(new LoggingHandler(LogLevel.INFO))
+             // ChannelInitializer是一个特殊的handler，用来初始化ChannelPipeline里面的handler链。
+             // 这个特殊的ChannelInitializer在加入到pipeline后，
+             // 在initChannel调用结束后,自身会被remove掉，从而完成初始化的效果。
              .childHandler(new ChannelInitializer<SocketChannel>() {
                  @Override
                  public void initChannel(SocketChannel ch) throws Exception {

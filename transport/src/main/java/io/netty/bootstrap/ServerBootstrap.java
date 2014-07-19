@@ -146,6 +146,12 @@ public final class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, Se
         return childGroup;
     }
 
+    /**
+     * 主要涉及到Parent Channel 和 Child Channel的option和attribute 设置，
+     * 并将客户端设置的参数覆盖到默认参数中；
+     * 最后，还将new ChannelInitializer()
+     * 中设置的handler加入到pipeline()中。
+     */
     @Override
     void init(Channel channel) throws Exception {
         final Map<ChannelOption<?>, Object> options = options();

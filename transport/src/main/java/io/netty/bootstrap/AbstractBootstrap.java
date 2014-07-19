@@ -269,6 +269,9 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
         return doBind(localAddress);
     }
 
+    /**
+     * 完成Channel的初始化和绑定端口
+     */
     private ChannelFuture doBind(final SocketAddress localAddress) {
         final ChannelFuture regFuture = initAndRegister();
         final Channel channel = regFuture.channel();
@@ -294,6 +297,9 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
         return promise;
     }
 
+    /**
+     * 完成Channel实例创建，实例化和注册channel到selector上
+     */
     final ChannelFuture initAndRegister() {
         final Channel channel = channelFactory().newChannel();
         try {

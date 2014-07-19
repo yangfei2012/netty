@@ -142,6 +142,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 return selector;
             }
 
+            // 通过反射获取属性字段field
             Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
             Field publicSelectedKeysField = selectorImplClass.getDeclaredField("publicSelectedKeys");
 

@@ -216,8 +216,8 @@ final class DefaultChannelPipeline implements ChannelPipeline {
     }
 
     @Override
-    public ChannelPipeline addAfter(
-            ChannelHandlerInvoker invoker, String baseName, final String name, ChannelHandler handler) {
+    public ChannelPipeline addAfter(ChannelHandlerInvoker invoker, String baseName,
+                                    final String name, ChannelHandler handler) {
         synchronized (this) {
             AbstractChannelHandlerContext ctx = getContextOrDie(baseName);
             checkDuplicateName(name);
