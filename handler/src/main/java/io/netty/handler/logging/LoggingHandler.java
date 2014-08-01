@@ -189,9 +189,15 @@ public class LoggingHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         if (logger.isEnabled(internalLevel)) {
             logger.log(internalLevel, format(ctx, "REGISTERED"));
         }
+
+        // TODO: continue call AbstractChannelHandlerContext.fireChannelRegistered()
+        // TODO: run next ChannelHandler.channelRegistered()
         ctx.fireChannelRegistered();
     }
 
@@ -279,6 +285,9 @@ public class LoggingHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         if (logger.isEnabled(internalLevel)) {
             logger.log(internalLevel, format(ctx, "RECEIVED", msg));
         }

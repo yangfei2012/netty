@@ -46,12 +46,19 @@ public class DefaultChannelHandlerInvoker implements ChannelHandlerInvoker {
 
     @Override
     public void invokeChannelRegistered(final ChannelHandlerContext ctx) {
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         if (executor.inEventLoop()) {
+            System.out.println("DefaultChannelHandlerinvoker.invokeChannelRegistered() in Event Loop: "+Thread.currentThread().getName());
             invokeChannelRegisteredNow(ctx);
         } else {
+            System.out.println("DefaultChannelHandlerinvoker.invokeChannelRegistered() NOT in Event Loop: "+Thread.currentThread().getName());
             executor.execute(new OneTimeTask() {
                 @Override
                 public void run() {
+                    System.out.println("DefaultChannelHandlerinvoker.invokeChannelRegistered() NOT in Event Loop OneTimeTask(): "+Thread.currentThread().getName());
+                    System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
                     invokeChannelRegisteredNow(ctx);
                 }
             });

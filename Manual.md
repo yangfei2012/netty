@@ -1,4 +1,21 @@
 
+个人理解：
+    参看ProcessOn上的图解。
+
+
+关于异步：
+    (参看Netty in Action5)
+    异步有两种实现：
+        callback
+        Future : like tornado yield
+
+    netty这里采用两种的混合实现(mixture)
+
+        1. ChannelFuture f = b.bind(PORT).sync();  // Future
+
+        2. regFuture.addListener(new ChannelFutureListener ...) // Callback (ChannelFutureListener)
+
+
 ChannelHandler:
     note that a ChannelHandler instance can be added to more than one ChannelPipeline.
     It means a single ChannelHandler instance can have more than one ChannelHandlerContext

@@ -423,6 +423,10 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
         @Override
         public final void register(EventLoop eventLoop, final ChannelPromise promise) {
+
+            System.out.println("AbstractChannel.AbstractUnsafe.register() :" + Thread.currentThread().getName());
+            System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
             if (eventLoop == null) {
                 throw new NullPointerException("eventLoop");
             }
@@ -438,12 +442,25 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
             AbstractChannel.this.eventLoop = eventLoop;
 
             if (eventLoop.inEventLoop()) {
+
+                System.out.println("AbstractChannel.AbstractUnsafe.register() in Loop :" + Thread.currentThread().getName());
+
                 register0(promise);
             } else {
                 try {
+
+                    System.out.println("AbstractChannel.AbstractUnsafe.register() NOT in Loop :" + Thread.currentThread().getName());
+
+                    // TODO: eventLoop.execute(..) --> SingleThreadEventExecutor.execute(..)
+                    // TODO: 不在BossThread中，则通过eventLoop的next()函数找到一个当前存在的WrokThread
+                    // TODO: 将Task交给当前的WorkThread进行处理
                     eventLoop.execute(new OneTimeTask() {
                         @Override
                         public void run() {
+
+                            System.out.println("run AbstractChannel.AbstractUnsafe.register() inner OneTimeTask() Task :" + Thread.currentThread().getName());
+                            System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
                             register0(promise);
                         }
                     });
@@ -459,15 +476,21 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
         }
 
         private void register0(ChannelPromise promise) {
+
+            System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
             try {
                 // check if the channel is still open as it could be closed in the mean time when the register
                 // call was outside of the eventLoop
                 if (!promise.setUncancellable() || !ensureOpen(promise)) {
                     return;
                 }
-                doRegister();
+                doRegister(); // TODO : AbstractNioChannel.doRegister()
                 registered = true;
                 safeSetSuccess(promise);
+
+                System.out.println("AbstractChannel.AbstractUnsafe.register0().safeSetSuccess() finished! :" + Thread.currentThread().getName());
+
                 pipeline.fireChannelRegistered();
                 if (isActive()) {
                     pipeline.fireChannelActive();
@@ -745,6 +768,8 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
          * Marks the specified {@code promise} as success.  If the {@code promise} is done already, log a message.
          */
         protected final void safeSetSuccess(ChannelPromise promise) {
+            System.out.println("AbstractChannel.AbstractUnsafe.safeSetSuccess() :"+Thread.currentThread().getName());
+            System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
             if (!(promise instanceof VoidChannelPromise) && !promise.trySuccess()) {
                 logger.warn("Failed to mark a promise as success because it is done already: {}", promise);
             }

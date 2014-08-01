@@ -402,7 +402,11 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
 
     @Override
     public boolean trySuccess(V result) {
+
+        //System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         if (setSuccess0(result)) {
+            //System.out.println("DefaultPromise.trySuccess() setSuccess0()==true :"+Thread.currentThread().getName());
             notifyListeners();
             return true;
         }
@@ -542,12 +546,10 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
         //    Hence any listener list modification happens-before this method.
         // 2) This method is called only when 'done' is true.  Once 'done'
         //    becomes true, the listener list is never modified - see add/removeListener()
-
         Object listeners = this.listeners;
         if (listeners == null) {
             return;
         }
-
         EventExecutor executor = executor();
         if (executor.inEventLoop()) {
             final InternalThreadLocalMap threadLocals = InternalThreadLocalMap.get();
@@ -555,11 +557,16 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
             if (stackDepth < MAX_LISTENER_STACK_DEPTH) {
                 threadLocals.setFutureListenerStackDepth(stackDepth + 1);
                 try {
+
+                    System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
                     if (listeners instanceof DefaultFutureListeners) {
+                        System.out.println("listeners is DefaultFutureListeners :" + Thread.currentThread().getName());
                         notifyListeners0(this, (DefaultFutureListeners) listeners);
                     } else {
                         final GenericFutureListener<? extends Future<V>> l =
                                 (GenericFutureListener<? extends Future<V>>) listeners;
+                        System.out.println("listeners is NOT DefaultFutureListeners :" + Thread.currentThread().getName());
                         notifyListener0(this, l);
                     }
                 } finally {
@@ -637,8 +644,9 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
         execute(executor, new LateListenerNotifier(l));
     }
 
-    protected static void notifyListener(
-            final EventExecutor eventExecutor, final Future<?> future, final GenericFutureListener<?> l) {
+    protected static void notifyListener(final EventExecutor eventExecutor,
+                                         final Future<?> future,
+                                         final GenericFutureListener<?> l) {
 
         if (eventExecutor.inEventLoop()) {
             final InternalThreadLocalMap threadLocals = InternalThreadLocalMap.get();
@@ -673,6 +681,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     static void notifyListener0(Future future, GenericFutureListener l) {
         try {
+            System.out.println(String.format("====线程信息[%s.%s()]: %s", "DefaultPromise", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
             l.operationComplete(future);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {

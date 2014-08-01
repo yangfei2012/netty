@@ -272,7 +272,11 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
     /**
      * 完成Channel的初始化和绑定端口
      */
-    private ChannelFuture doBind(final SocketAddress localAddress) {
+    private ChannelFuture doBind(final SocketAddress localAddress) { // TODO: run in ServerBootstrap
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
+        System.out.println("init and register :" + Thread.currentThread().getName());
         final ChannelFuture regFuture = initAndRegister();
         final Channel channel = regFuture.channel();
         if (regFuture.cause() != null) {
@@ -282,13 +286,20 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
         final ChannelPromise promise;
         if (regFuture.isDone()) {
             promise = channel.newPromise();
+            System.out.println("regFuture is Done will doBind0 :" + Thread.currentThread().getName());
             doBind0(regFuture, channel, localAddress, promise);
         } else {
+            System.out.println("regFuture is NOT Done :" + Thread.currentThread().getName());
+
             // Registration future is almost always fulfilled already, but just in case it's not.
             promise = new PendingRegistrationPromise(channel);
             regFuture.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
+
+                    System.out.println("In AbstractBootstrap doBind() ChannelFutureListener Callback :" + Thread.currentThread().getName());
+                    System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
                     doBind0(regFuture, channel, localAddress, promise);
                 }
             });
@@ -310,6 +321,7 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
             return new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE).setFailure(t);
         }
 
+        // 注意此时的注册是在boss group中进行
         ChannelFuture regFuture = group().register(channel);
         if (regFuture.cause() != null) {
             if (channel.isRegistered()) {
@@ -336,8 +348,9 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
     abstract void init(Channel channel) throws Exception;
 
     private static void doBind0(final ChannelFuture regFuture, final Channel channel,
-            final SocketAddress localAddress, final ChannelPromise promise) {
+                                final SocketAddress localAddress, final ChannelPromise promise) {
 
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", "AbstractBootstrap", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
         // This method is invoked before channelRegistered() is triggered.
         // Give user handlers a chance to set up
         // the pipeline in its channelRegistered() implementation.

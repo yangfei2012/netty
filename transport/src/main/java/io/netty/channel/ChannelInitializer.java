@@ -64,6 +64,9 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelHandl
     @Override
     @SuppressWarnings("unchecked")
     public final void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         ChannelPipeline pipeline = ctx.pipeline();
         boolean success = false;
         try {
@@ -72,7 +75,7 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelHandl
             initChannel((C) ctx.channel());
             // 把ServerBootstrap$1这个Handler给删除了，从而完成初始化的效果
             pipeline.remove(this);
-            // 找到了下一个handler
+            // 找到了下一个handler [continue call AbstractChannelHandlerContext.fireChannelRegistered() and run it]
             ctx.fireChannelRegistered();
             success = true;
         } catch (Throwable t) {

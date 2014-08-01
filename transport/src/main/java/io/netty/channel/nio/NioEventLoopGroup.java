@@ -42,7 +42,7 @@ public class NioEventLoopGroup extends MultithreadEventLoopGroup {
      * Create a new instance using the specified number of threads, {@link ThreadFactory} and the
      * {@link SelectorProvider} which is returned by {@link SelectorProvider#provider()}.
      */
-    public NioEventLoopGroup(int nThreads) {
+    public  NioEventLoopGroup(int nThreads) {
         this(nThreads, (Executor) null);
     }
 
@@ -59,11 +59,11 @@ public class NioEventLoopGroup extends MultithreadEventLoopGroup {
     }
 
     /**
-     * Create a new instance using the specified number of threads, the given {@link ThreadFactory} and the given
-     * {@link SelectorProvider}.
+     * Create a new instance using the specified number of threads,
+     * the given {@link ThreadFactory} and the given {@link SelectorProvider}.
      */
-    public NioEventLoopGroup(
-            int nThreads, ThreadFactory threadFactory, final SelectorProvider selectorProvider) {
+    public NioEventLoopGroup(int nThreads, ThreadFactory threadFactory,
+                             final SelectorProvider selectorProvider) {
         super(nThreads, threadFactory, selectorProvider);
     }
 

@@ -58,6 +58,7 @@ public abstract class SingleThreadEventLoop extends SingleThreadEventExecutor im
 
     @Override
     public ChannelFuture register(final Channel channel, final ChannelPromise promise) {
+        // 这里采用 Visitor pattern :  channel...register(this...)
         if (channel == null) {
             throw new NullPointerException("channel");
         }

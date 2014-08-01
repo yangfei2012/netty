@@ -303,6 +303,9 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
      * @return {@code true} if and only if at least one task was run
      */
     protected boolean runAllTasks() {
+
+        //System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         fetchFromDelayedQueue();
         Runnable task = pollTask();
         if (task == null) {
@@ -311,6 +314,9 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
 
         for (;;) {
             try {
+
+                System.out.println("***Loop run all tasks one by one | SingleThreadEventExecutor.runAllTasks() :"+Thread.currentThread().getName());
+
                 task.run();
             } catch (Throwable t) {
                 logger.warn("A task raised an exception.", t);
@@ -329,6 +335,9 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
      * the tasks in the task queue and returns if it ran longer than {@code timeoutNanos}.
      */
     protected boolean runAllTasks(long timeoutNanos) {
+
+        //System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         fetchFromDelayedQueue();
         Runnable task = pollTask();
         if (task == null) {
@@ -340,6 +349,8 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
         long lastExecutionTime;
         for (;;) {
             try {
+                System.out.println("***Loop run all tasks one by one by delayTimeout | SingleThreadEventExecutor.runAllTasks(xx) :"+Thread.currentThread().getName());
+                // TODO: AbstractChannel ... eventLoop.execute(new OneTimeTask() {})
                 task.run();
             } catch (Throwable t) {
                 logger.warn("A task raised an exception.", t);
@@ -356,6 +367,8 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
                 }
             }
 
+            // TODO: 其所存入的ScheduledFutureTask会不断的向delayedTaskQueue中添加自己，构成循环检测
+            // TODO: 参看ScheduledFutureTask
             task = pollTask();
             if (task == null) {
                 lastExecutionTime = ScheduledFutureTask.nanoTime();
@@ -410,6 +423,9 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
 
     @Override
     public boolean inEventLoop(Thread thread) {
+        //System.out.println("thread :"+thread+"__"+Thread.currentThread().getName());
+        //System.out.println("this.thread :"+this.thread+"__"+Thread.currentThread().getName());
+        boolean a = (thread == this.thread);
         return thread == this.thread;
     }
 
@@ -679,16 +695,31 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
 
     @Override
     public void execute(Runnable task) {
+
+        System.out.println("SingleThreadEventExecutor.execute() :" + Thread.currentThread().getName());
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         if (task == null) {
             throw new NullPointerException("task");
         }
 
         boolean inEventLoop = inEventLoop();
         if (inEventLoop) {
+
+            System.out.println("SingleThreadEventExecutor execute() in inEventLoop :" + Thread.currentThread().getName());
+
             addTask(task);
         } else {
+
+            System.out.println("SingleThreadEventExecutor execute() NOT in inEventLoop :" + Thread.currentThread().getName());
+
+            // TODO: 若已经存在workThread了，则不会创建新的thread
             startThread();
+
+            // TODO: 当bossThread添加完task后，由于当前的workThread会不断轮询taskQueue
+            // TODO: 所以会立刻拿到task并执行，这也是Boss和Work的协同工作原理所在?
             addTask(task);
+
             if (isShutdown() && removeTask(task)) {
                 reject();
             }
@@ -808,6 +839,8 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
     }
 
     private void startThread() {
+        // TODO: 注意下述判断大概为－－当没有线程时才会调用doStratThread!!!
+        // TODO: 若此时已经有workThread线程了,就不会运行doStartThread()了
         if (STATE_UPDATER.get(this) == ST_NOT_STARTED) {
             if (STATE_UPDATER.compareAndSet(this, ST_NOT_STARTED, ST_STARTED)) {
                 delayedTaskQueue.add(
@@ -824,9 +857,16 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
 
     private void doStartThread() {
         assert thread == null;
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
+        // TODO: executor --> ThreadPerTaskExecutor
         executor.execute(new Runnable() {
             @Override
             public void run() {
+                System.out.println("SingleThreadEventExecutor doStartThread() created a ThreadPerTaskExecutor's Thread, name is :" + Thread.currentThread().getName());
+                System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
                 thread = Thread.currentThread();
                 if (interrupted) {
                     thread.interrupt();
@@ -835,15 +875,18 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
                 boolean success = false;
                 updateLastExecutionTime();
                 try {
+                    // TODO: NIO Event Loop run()
                     SingleThreadEventExecutor.this.run();
                     success = true;
                 } catch (Throwable t) {
                     logger.warn("Unexpected exception from an event executor: ", t);
                 } finally {
                     for (;;) {
+                        // TODO: 这里会更新状态STATE_UPDATER
                         int oldState = STATE_UPDATER.get(SingleThreadEventExecutor.this);
-                        if (oldState >= ST_SHUTTING_DOWN || STATE_UPDATER.compareAndSet(
-                                SingleThreadEventExecutor.this, oldState, ST_SHUTTING_DOWN)) {
+                        if (oldState >= ST_SHUTTING_DOWN ||
+                            STATE_UPDATER.compareAndSet(
+                                    SingleThreadEventExecutor.this, oldState, ST_SHUTTING_DOWN)) {
                             break;
                         }
                     }

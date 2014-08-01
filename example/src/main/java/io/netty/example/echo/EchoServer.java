@@ -49,7 +49,7 @@ public final class EchoServer {
 
         // Configure the server.
         EventLoopGroup bossGroup = new NioEventLoopGroup(1); //bossGroup线程池用来接受客户端的连接请求
-        EventLoopGroup workerGroup = new NioEventLoopGroup(); //workerGroup线程池用来处理boss线程池里面的连接的数据
+        EventLoopGroup workerGroup = new NioEventLoopGroup(1); //workerGroup线程池用来处理boss线程池里面的连接的数据
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)

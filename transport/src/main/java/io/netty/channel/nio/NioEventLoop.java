@@ -301,7 +301,10 @@ public final class NioEventLoop extends SingleThreadEventLoop {
 
     @Override
     protected void run() {
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+        System.out.println("**NioEventLoop will 轮询等待** :" + Thread.currentThread().getName());
         for (;;) {
+            // System.out.println("**NioEventLoop轮询等待**");
             boolean oldWakenUp = wakenUp.getAndSet(false);
             try {
                 if (hasTasks()) {
@@ -354,9 +357,9 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                     processSelectedKeys();
 
                     final long ioTime = System.nanoTime() - ioStartTime;
+
                     runAllTasks(ioTime * (100 - ioRatio) / ioRatio);
                 }
-
                 if (isShuttingDown()) {
                     closeAll();
                     if (confirmShutdown()) {
@@ -378,6 +381,9 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     }
 
     private void processSelectedKeys() {
+
+        //System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         if (selectedKeys != null) {
             processSelectedKeysOptimized(selectedKeys.flip());
         } else {
@@ -496,6 +502,9 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     }
 
     private static void processSelectedKey(SelectionKey k, AbstractNioChannel ch) {
+
+        //System.out.println(String.format("====线程信息[%s.%s()]: %s", "NioEventLoop.processSelectedKey()", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         final AbstractNioChannel.NioUnsafe unsafe = ch.unsafe();
         if (!k.isValid()) {
             // close the channel if the key is not valid anymore
@@ -535,6 +544,9 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     private static void processSelectedKey(SelectionKey k, NioTask<SelectableChannel> task) {
         int state = 0;
         try {
+
+            System.out.println(String.format("====线程信息[%s.%s()]: %s", "NioEventLoop", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
             task.channelReady(k.channel(), k);
             state = 1;
         } catch (Exception e) {

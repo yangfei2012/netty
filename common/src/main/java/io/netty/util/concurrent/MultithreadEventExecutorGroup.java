@@ -34,6 +34,9 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
     private final AtomicInteger childIndex = new AtomicInteger();
     private final AtomicInteger terminatedChildren = new AtomicInteger();
     private final Promise<?> terminationFuture = new DefaultPromise(GlobalEventExecutor.INSTANCE);
+    // 用于随机选择/散列children[]中的一个 EventExecutor(NioEventLoop)
+    // 随机方式有两种：PowerOfTwoEventExecutorChooser, PowerOfTwoEventExecutorChooser
+    // 用于next()函数中
     private final EventExecutorChooser chooser;
 
     /**

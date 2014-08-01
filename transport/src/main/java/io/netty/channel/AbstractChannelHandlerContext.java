@@ -301,7 +301,11 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
 
     @Override
     public ChannelHandlerContext fireChannelRegistered() {
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         AbstractChannelHandlerContext next = findContextInbound();
+        // TODO: invoker() --> DefaultChannelHandlerInvoker
         next.invoker().invokeChannelRegistered(next);
         return this;
     }
@@ -343,6 +347,9 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
 
     @Override
     public ChannelHandlerContext fireChannelRead(Object msg) {
+
+        //System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         AbstractChannelHandlerContext next = findContextInbound();
         ReferenceCountUtil.touch(msg, next);
         next.invoker().invokeChannelRead(next, msg);
@@ -351,6 +358,7 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
 
     @Override
     public ChannelHandlerContext fireChannelReadComplete() {
+
         AbstractChannelHandlerContext next = findContextInbound();
         next.invoker().invokeChannelReadComplete(next);
         return this;

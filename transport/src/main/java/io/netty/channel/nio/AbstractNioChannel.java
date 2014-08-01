@@ -186,8 +186,8 @@ public abstract class AbstractNioChannel extends AbstractChannel {
         }
 
         @Override
-        public void connect(
-                final SocketAddress remoteAddress, final SocketAddress localAddress, final ChannelPromise promise) {
+        public void connect(final SocketAddress remoteAddress, final SocketAddress localAddress,
+                            final ChannelPromise promise) {
             if (!promise.setUncancellable() || !ensureOpen(promise)) {
                 return;
             }
@@ -334,6 +334,13 @@ public abstract class AbstractNioChannel extends AbstractChannel {
 
     @Override
     protected void doRegister() throws Exception {
+
+        // 将该channel注册到绑定的selector上
+
+        // TODO: 将在NioServerSocketChannel中被调用
+        System.out.println("AbstractNioChannel.doRegister() :" + Thread.currentThread().getName());
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         boolean selected = false;
         for (;;) {
             try {

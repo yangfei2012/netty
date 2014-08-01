@@ -170,7 +170,7 @@ public final class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, Se
 
         ChannelPipeline p = channel.pipeline();
         if (handler() != null) {
-            p.addLast(handler());
+            p.addLast(handler()); // DefaultChannelPipeline会把handler打包成Default...Context
         }
 
         final EventLoopGroup currentChildGroup = childGroup;
@@ -187,8 +187,13 @@ public final class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, Se
         p.addLast(new ChannelInitializer<Channel>() {
             @Override
             public void initChannel(Channel ch) throws Exception {
-                ch.pipeline().addLast(new ServerBootstrapAcceptor(
-                        currentChildGroup, currentChildHandler, currentChildOptions, currentChildAttrs));
+
+                System.out.println("ServerBootstrap.init() inner ChannelInitializer.initChannel() :"+Thread.currentThread().getName());
+                System.out.println(String.format("====线程信息[%s.%s()]: %s", "ChannelHandlerInvokerUtil", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
+                ch.pipeline().addLast(
+                        new ServerBootstrapAcceptor(currentChildGroup, currentChildHandler,
+                                currentChildOptions, currentChildAttrs));
             }
         });
     }
@@ -223,9 +228,9 @@ public final class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, Se
         private final Entry<ChannelOption<?>, Object>[] childOptions;
         private final Entry<AttributeKey<?>, Object>[] childAttrs;
 
-        ServerBootstrapAcceptor(
-                EventLoopGroup childGroup, ChannelHandler childHandler,
-                Entry<ChannelOption<?>, Object>[] childOptions, Entry<AttributeKey<?>, Object>[] childAttrs) {
+        ServerBootstrapAcceptor(EventLoopGroup childGroup, ChannelHandler childHandler,
+                                Entry<ChannelOption<?>, Object>[] childOptions,
+                                Entry<AttributeKey<?>, Object>[] childAttrs) {
             this.childGroup = childGroup;
             this.childHandler = childHandler;
             this.childOptions = childOptions;
@@ -235,6 +240,9 @@ public final class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, Se
         @Override
         @SuppressWarnings("unchecked")
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
+
+            System.out.println(String.format("====线程信息[%s.%s()]: %s", "ServerBootstrap.ServerBootstrapAcceptor", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
             final Channel child = (Channel) msg;
 
             child.pipeline().addLast(childHandler);
@@ -254,9 +262,14 @@ public final class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, Se
             }
 
             try {
+                // BossGroup接到ready信息后，传递给WorkGroup进行通信?
                 childGroup.register(child).addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
+
+                        System.out.println("ServerBootstrap.channelRead() inner ChannelFutureListener.operationComplete() :"+Thread.currentThread().getName());
+                        System.out.println(String.format("====线程信息[%s.%s()]: %s", "ChannelHandlerInvokerUtil", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
                         if (!future.isSuccess()) {
                             forceClose(child, future.cause());
                         }

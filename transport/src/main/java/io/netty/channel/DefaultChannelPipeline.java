@@ -316,6 +316,9 @@ final class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public ChannelPipeline addLast(ChannelHandlerInvoker invoker, ChannelHandler... handlers) {
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         if (handlers == null) {
             throw new NullPointerException("handlers");
         }
@@ -483,9 +486,8 @@ final class DefaultChannelPipeline implements ChannelPipeline {
         return (T) replace(getContextOrDie(oldHandlerType), newName, newHandler);
     }
 
-    private ChannelHandler replace(
-            final AbstractChannelHandlerContext ctx, final String newName,
-            ChannelHandler newHandler) {
+    private ChannelHandler replace(final AbstractChannelHandlerContext ctx,
+                                   final String newName, ChannelHandler newHandler) {
 
         assert ctx != head && ctx != tail;
 
@@ -568,11 +570,15 @@ final class DefaultChannelPipeline implements ChannelPipeline {
     }
 
     private void callHandlerAdded(final AbstractChannelHandlerContext ctx) {
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         if ((ctx.skipFlags & AbstractChannelHandlerContext.MASK_HANDLER_ADDED) != 0) {
             return;
         }
 
         if (ctx.channel().isRegistered() && !ctx.executor().inEventLoop()) {
+            System.out.println("DefauleChannelPipeline.callHandlerAdded() not in EventLoop :"+Thread.currentThread().getName());
             ctx.executor().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1049,13 +1055,22 @@ final class DefaultChannelPipeline implements ChannelPipeline {
         }
 
         @Override
-        public void channelRegistered(ChannelHandlerContext ctx) throws Exception { }
+        public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+
+            System.out.println("DefaultChannelPipeline.TailContext.channelRegistered() ChannelHandlerContext tail!!! :"+Thread.currentThread().getName());
+            System.out.println(String.format("====线程信息[%s.%s()]: %s", "ChannelHandlerInvokerUtil", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
+        }
 
         @Override
         public void channelUnregistered(ChannelHandlerContext ctx) throws Exception { }
 
         @Override
-        public void channelActive(ChannelHandlerContext ctx) throws Exception { }
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
+            System.out.println(String.format("====线程信息[%s.%s()]: %s", "ChannelHandlerInvokerUtil", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
+        }
 
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception { }
@@ -1068,16 +1083,17 @@ final class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            logger.warn(
-                    "An exceptionCaught() event was fired, and it reached at the tail of the pipeline. " +
+            logger.warn("An exceptionCaught() event was fired, and it reached at the tail of the pipeline. " +
                             "It usually means the last handler in the pipeline did not handle the exception.", cause);
         }
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
+            System.out.println(String.format("====线程信息[%s.%s()]: %s", "ChannelHandlerInvokerUtil", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
             try {
-                logger.debug(
-                        "Discarded inbound message {} that reached at the tail of the pipeline. " +
+                logger.debug("Discarded inbound message {} that reached at the tail of the pipeline. " +
                                 "Please check your pipeline configuration.", msg);
             } finally {
                 ReferenceCountUtil.release(msg);

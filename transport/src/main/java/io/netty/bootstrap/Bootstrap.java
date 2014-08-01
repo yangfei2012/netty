@@ -143,6 +143,8 @@ public final class Bootstrap extends AbstractBootstrap<Bootstrap, Channel> {
             regFuture.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
+                    System.out.println("Bootstrap.doConnect().regFuture is not Done :" + Thread.currentThread().getName());
+                    System.out.println(String.format("====线程信息[%s.%s()]: %s", getClass().getName(), Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
                     doConnect0(regFuture, channel, remoteAddress, localAddress, promise);
                 }
             });
@@ -151,9 +153,11 @@ public final class Bootstrap extends AbstractBootstrap<Bootstrap, Channel> {
         return promise;
     }
 
-    private static void doConnect0(
-            final ChannelFuture regFuture, final Channel channel,
-            final SocketAddress remoteAddress, final SocketAddress localAddress, final ChannelPromise promise) {
+    private static void doConnect0(final ChannelFuture regFuture, final Channel channel,
+                                   final SocketAddress remoteAddress, final SocketAddress localAddress,
+                                   final ChannelPromise promise) {
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", "Bootstrap", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
 
         // This method is invoked before channelRegistered() is triggered.  Give user handlers a chance to set up
         // the pipeline in its channelRegistered() implementation.

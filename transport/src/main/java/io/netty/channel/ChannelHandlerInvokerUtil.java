@@ -28,7 +28,11 @@ import static io.netty.channel.DefaultChannelPipeline.*;
 public final class ChannelHandlerInvokerUtil {
 
     public static void invokeChannelRegisteredNow(ChannelHandlerContext ctx) {
+
+        System.out.println(String.format("====线程信息[%s.%s()]: %s", "ChannelHandlerInvokerUtil", Thread.currentThread().getStackTrace()[1].getMethodName(), Thread.currentThread().getName()));
+
         try {
+            // TODO: 此处handler为Bootstrap中存储的handler，当前为LoggingHandler.channelRegistered()
             ctx.handler().channelRegistered(ctx);
         } catch (Throwable t) {
             notifyHandlerException(ctx, t);
