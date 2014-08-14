@@ -70,10 +70,10 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelHandl
         ChannelPipeline pipeline = ctx.pipeline();
         boolean success = false;
         try {
-            // 该方法把ServerBootstrapAcceptor(?未确定)
+            // 该方法把ServerBootstrapAcceptor
             // 这个Handler加入到Pipeline中
             initChannel((C) ctx.channel());
-            // 把ServerBootstrap$1这个Handler给删除了，从而完成初始化的效果
+            // 把自己(ChannelInitializer)这个Handler给删除了，从而完成初始化的效果
             pipeline.remove(this);
             // 找到了下一个handler [continue call AbstractChannelHandlerContext.fireChannelRegistered() and run it]
             ctx.fireChannelRegistered();
